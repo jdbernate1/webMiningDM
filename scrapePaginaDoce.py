@@ -91,11 +91,10 @@ def extraccionDataNoticias(listaUrls,filename):
 			writer.writerow({'url':url, 'titulo':titulo, 'cuerpoNoticia':cuerpo,'clase':clase})
 
 
-
 if __name__ == '__main__':
-	# pagina12spider(150,"sociedad","urlsSociedad.csv")
-	# pagina12spider(150,"economia","urlsEconomia.csv")
-	# pagina12spider(150,"deportes","urlsDeportes.csv")
+	pagina12spider(150,"sociedad","urlsSociedad.csv")
+	pagina12spider(150,"economia","urlsEconomia.csv")
+	pagina12spider(150,"deportes","urlsDeportes.csv")
 	lista = generarListasUrls(["urlsSociedad.csv","urlsEconomia.csv","urlsDeportes.csv"])
 	extraccionDataNoticias(lista,'dataset.csv')
 
