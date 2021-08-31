@@ -20,9 +20,12 @@ def obtenerNoticias(text):
 		noticias.append([titulo,href])
 	return noticias
 
-def pagina12spider(max_pages,seccion,filename):
+def pagina12spider(max_pages,seccion,filename,pag_inicio=None):
 	print("extrayendo "+str(seccion))
-	page=0
+	if pag_inicio == None:
+		page=0
+	else:
+		page=pag_inicio
 	while page <= max_pages:
 		url = "https://www.pagina12.com.ar/secciones/"+str(seccion)+"?page="+str(page)
 		html = requests.get(url).text
@@ -92,9 +95,9 @@ def extraccionDataNoticias(listaUrls,filename):
 
 
 if __name__ == '__main__':
-	pagina12spider(150,"sociedad","urlsSociedad.csv")
-	pagina12spider(150,"economia","urlsEconomia.csv")
-	pagina12spider(150,"deportes","urlsDeportes.csv")
+	pagina12spider(150,"sociedad","urlsSociedad.csv",pag_inicio=0)
+	pagina12spider(150,"economia","urlsEconomia.csv",pag_inicio=0)
+	pagina12spider(150,"deportes","urlsDeportes.csv",pag_inicio=0)
 	lista = generarListasUrls(["urlsSociedad.csv","urlsEconomia.csv","urlsDeportes.csv"])
 	extraccionDataNoticias(lista,'dataset.csv')
 
