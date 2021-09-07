@@ -30,7 +30,8 @@ def pagina12spider(max_pages,seccion,filename,pag_inicio=None):
 	print(page,max_pages)
 	while page <= max_pages:
 		url = "https://www.pagina12.com.ar/secciones/"+str(seccion)+"?page="+str(page)
-		html = requests.get(url).text
+		h = {'user-agent':"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36"}
+		html = requests.get(url,headers=h).text
 		noticias = obtenerNoticias(html)
 		noticias = [x.insert(0,url) or x for x in noticias]
 		file_exists = os.path.isfile(filename)
@@ -47,7 +48,8 @@ def pagina12spider(max_pages,seccion,filename,pag_inicio=None):
 		page +=1
 
 def obtenerCuerpoNoticias(url):
-	r = requests.get(url)
+	h = {'user-agent':"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36"}
+	r = requests.get(url,headers=h)
 	if r.status_code == 200:
 		print(url,r,r.status_code)
 	else:
@@ -97,9 +99,12 @@ def extraccionDataNoticias(listaUrls,filename):
 
 
 if __name__ == '__main__':
-	# pagina12spider(150,"sociedad","urlsSociedad151-300.csv",pag_inicio=151)
-	# pagina12spider(150,"economia","urlsEconomia151-300.csv",pag_inicio=151)
-	# pagina12spider(150,"deportes","urlsDeportes151-300.csv",pag_inicio=151)
-	lista = generarListasUrls(["urlsSociedad151-300.csv","urlsEconomia151-300.csv","urlsDeportes151-300.csv"])
+	#pagina12spider(150,"sociedad","urlsSociedad.csv")
+	#pagina12spider(150,"economia","urlsEconomia.csv")
+	#pagina12spider(150,"deportes","urlsDeportes.csv") #Los primeros 150 de cada sección se bajaron en un primer momento.
+	pagina12spider(150,"sociedad","urlsSociedad151-300.csv",pag_inicio=151)
+	pagina12spider(150,"economia","urlsEconomia151-300.csv",pag_inicio=151)
+	pagina12spider(150,"deportes","urlsDeportes151-300.csv",pag_inicio=151)
+	lista = generarListasUrls(["urlsSociedad.csv","urlsEconomia.csv","urlsDeportes.csv","urlsSociedad151-300.csv","urlsEconomia151-300.csv","urlsDeportes151-300.csv"])
 	extraccionDataNoticias(lista,'dataset.csv')
 
