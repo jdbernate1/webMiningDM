@@ -4,10 +4,9 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from random import randint
-from time import sleep
+from time import sleep,time
 import csv
 import os.path
-
 
 def obtenerNoticias(text):
 	soup = BeautifulSoup(text,features='lxml')
@@ -27,7 +26,6 @@ def pagina12spider(max_pages,seccion,filename,pag_inicio=None):
 	else:
 		page=pag_inicio
 		max_pages = max_pages+pag_inicio
-	print(page,max_pages)
 	while page <= max_pages:
 		url = "https://www.pagina12.com.ar/secciones/"+str(seccion)+"?page="+str(page)
 		h = {'user-agent':"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36"}
@@ -57,17 +55,22 @@ def obtenerCuerpoNoticias(url):
 	html = r.text
 	soup = BeautifulSoup(html,features='lxml')
 	texto = []
+	time = soup.find("time").text
 	div = soup.find("div", {"class": "article-main-content article-text"})
 	if div == None:
-		div = soup.find("div", {"class": "article-main-content article-text no-main-image"})
+		div = soup.find("div", {"class": "article-main-content article-text "})
+		if div == None:
+			div = soup.find("div", {"class": "article-main-content article-text no-main-image"})
+			if div == None:
+				div = soup.find("div", {"class": "article-main-content article-text no-main-image "})
 	p = div.find_all("p")
 	for elem in p:
 		texto.append(elem.text)
 	cuerpo = " ".join(texto)
 
-	sleep(randint(55,90)/100)
+	sleep(randint(70,200)/100)
 
-	return cuerpo
+	return cuerpo,time
 
 def generarListasUrls(listaCsvs):
 	listaDF =[]
@@ -88,23 +91,26 @@ def extraccionDataNoticias(listaUrls,filename):
 		url = elem[0]
 		clase = elem[1]
 		titulo = elem[2]
-		cuerpo = obtenerCuerpoNoticias(url)
+		cuerpo,time = obtenerCuerpoNoticias(url)
 		file_exists = os.path.isfile(filename)
 		with open (filename, 'a', encoding='utf-8') as csvfile:
-			headers = ["url","titulo", "cuerpoNoticia","clase"]
+			headers = ["url","titulo","fecha", "cuerpoNoticia","clase"]
 			writer = csv.DictWriter(csvfile, delimiter=';', lineterminator='\n',fieldnames=headers)
 			if not file_exists:
 				writer.writeheader()
-			writer.writerow({'url':url, 'titulo':titulo, 'cuerpoNoticia':cuerpo,'clase':clase})
-
+			writer.writerow({'url':url, 'titulo':titulo, 'fecha':time, 'cuerpoNoticia':cuerpo,'clase':clase})
 
 if __name__ == '__main__':
-	#pagina12spider(150,"sociedad","urlsSociedad.csv")
-	#pagina12spider(150,"economia","urlsEconomia.csv")
-	#pagina12spider(150,"deportes","urlsDeportes.csv") #Los primeros 150 de cada sección se bajaron en un primer momento.
-	pagina12spider(150,"sociedad","urlsSociedad151-300.csv",pag_inicio=151)
-	pagina12spider(150,"economia","urlsEconomia151-300.csv",pag_inicio=151)
-	pagina12spider(150,"deportes","urlsDeportes151-300.csv",pag_inicio=151)
-	lista = generarListasUrls(["urlsSociedad.csv","urlsEconomia.csv","urlsDeportes.csv","urlsSociedad151-300.csv","urlsEconomia151-300.csv","urlsDeportes151-300.csv"])
+	start_time = time()
+	pagina12spider(300,"el-pais","urlsPais.csv")
+	pagina12spider(300,"economia","urlsEconomia.csv")
+	pagina12spider(300,"el-mundo","urlsMundo.csv") 
+	lista = generarListasUrls(["urlsPais.csv"])
 	extraccionDataNoticias(lista,'dataset.csv')
-
+	sleep(60*5)
+	lista = generarListasUrls(["urlsEconomia.csv"])
+	extraccionDataNoticias(lista,'dataset.csv')
+	sleep(60*5)
+	lista = generarListasUrls(["urlsMundo.csv"])
+	extraccionDataNoticias(lista,'dataset.csv')
+	print("--- %s seconds ---" % (time() - start_time))
