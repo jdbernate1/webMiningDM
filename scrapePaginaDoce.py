@@ -113,4 +113,11 @@ if __name__ == '__main__':
 	sleep(60*5)
 	lista = generarListasUrls(["urlsMundo.csv"])
 	extraccionDataNoticias(lista,'dataset.csv')
+	#Validacion
+	pagina12spider(10,"el-pais","urlsPaisValidacion.csv",400)
+	pagina12spider(10,"economia","urlsEconomiaValidacion.csv",400)
+	pagina12spider(10,"el-mundo","urlsMundoValidacion.csv",400)
+	listaVal = generarListasUrls(["urlsPaisValidacion.csv","urlsEconomiaValidacion.csv","urlsMundoValidacion.csv"])
+	extraccionDataNoticias(listaVal,'datasetVal.csv')
+
 	print("--- %s seconds ---" % (time() - start_time))
